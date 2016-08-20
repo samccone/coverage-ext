@@ -1,0 +1,11 @@
+{
+  "name": "coverage",
+  "manifest_version": 2,
+  "version": "1",
+  "minimum_chrome_version": "10.0",
+  "devtools_page": "coverage.html",
+  "background" : {
+    "scripts": ["background.js"]
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+}

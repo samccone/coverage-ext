@@ -9,6 +9,14 @@ chrome.devtools.panels.create("Coverage",
   }
 );
 
+function preprocessor(src, url, fName)
+{
+  console.log(url);
+  return src;
+}
+
 function onGatherClick() {
-  chrome.devtools.inspectedWindow.reload();
+  chrome.devtools.inspectedWindow.reload({
+    preprocessingScript:  "(" + preprocessor + ")",
+  });
 }

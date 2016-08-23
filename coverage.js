@@ -9,14 +9,25 @@ chrome.devtools.panels.create("Coverage",
   }
 );
 
-function preprocessor(src, url, fName)
-{
-  console.log(url);
-  return src;
+function preprocessor(src, url, fName) {
+  function instrumentSrc(src) {
+    return window.instrument(src, url);
+  }
+
+  if (url) {
+    return instrumentSrc(src)
+  } else {
+    return src;
+  }
 }
+
+var request = new XMLHttpRequest();
+request.open('GET', 'instrumenter.js', false);
+request.send(null);
+var instrumenterSrc = request.responseText
 
 function onGatherClick() {
   chrome.devtools.inspectedWindow.reload({
-    preprocessingScript:  "(" + preprocessor + ")",
+    preprocessingScript:  instrumenterSrc + "(" + preprocessor + ")",
   });
 }

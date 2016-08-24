@@ -11,7 +11,11 @@ chrome.devtools.panels.create("Coverage",
 
 function preprocessor(src, url, fName) {
   function instrumentSrc(src) {
-    return window.instrument(src, url);
+    // Make sure that we store the original src code in a map.
+    var prefix = '(window.__originals = window.__originals || {});' +
+      'window.__originals["' + url + '"] = "' + btoa(src) + '";';
+
+    return prefix + window.instrument(src, url);
   }
 
   if (url) {
@@ -28,6 +32,7 @@ var instrumenterSrc = request.responseText
 
 function onGatherClick() {
   chrome.devtools.inspectedWindow.reload({
-    preprocessingScript:  instrumenterSrc + "(" + preprocessor + ")",
+    preprocessingScript:  instrumenterSrc +
+      '(' + preprocessor + ')',
   });
 }

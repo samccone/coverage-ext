@@ -3,11 +3,38 @@ chrome.devtools.panels.create("Coverage",
   "coverage_panel.html",
   function(panel) {
     panel.onShown.addListener(function(panelWindow) {
-      panelWindow.document.body.querySelector('#gather').addEventListener('click',
+      panelWindow.document.body.querySelector('#gather').addEventListener(
+          'click',
           onGatherClick);
+
+      panelWindow.document.body.querySelector('#copy').addEventListener(
+          'click',
+          onCopyClick);
     });
   }
 );
+
+function onCopyClick() {
+  var coveragePromise = new Promise(function(res, rej) {
+    chrome.devtools.inspectedWindow.eval('JSON.stringify(__coverage__)', function(v, err) {
+      res(v);
+    });
+  });
+
+  var originalSrcPromise = new Promise(function(res, rej) {
+    chrome.devtools.inspectedWindow.eval('JSON.stringify(__originals)', function(v, err) {
+      res(v);
+    });
+  });
+
+  Promise.all([coveragePromise, originalSrcPromise]).then(function(vals) {
+    chrome.devtools.inspectedWindow.eval('copy({"coverage": \''+ vals[0] +'\', "originals": \''+ vals[1] +'\'})', function(v, err) {
+      if (err) {
+        console.log(err);
+      }
+    });
+  });
+}
 
 function preprocessor(src, url, fName) {
   function instrumentSrc(src) {

@@ -40,7 +40,7 @@ function preprocessor(src, url, fName) {
   function instrumentSrc(src) {
     // Make sure that we store the original src code in a map.
     var prefix = '(window.__originals = window.__originals || {});' +
-      'window.__originals["' + url + '"] = "' + btoa(src) + '";';
+      'window.__originals["' + url + '"] = "' + btoa(unescape(encodeURIComponent(src))) + '";';
 
     return prefix + window.instrument(src, url);
   }

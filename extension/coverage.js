@@ -47,7 +47,7 @@ function preprocessor(src, url, fName) {
   }
 
   if (url) {
-    return instrumentSrc(src)
+    return instrumentSrc(window.beautify(src));
   } else {
     return src;
   }
@@ -58,9 +58,13 @@ request.open('GET', 'instrumenter.js', false);
 request.send(null);
 var instrumenterSrc = request.responseText
 
+request.open('GET', 'beautify.js', false);
+request.send(null);
+var beautifySrc = request.responseText
+
 function onGatherClick() {
   chrome.devtools.inspectedWindow.reload({
-    preprocessingScript:  instrumenterSrc +
+    preprocessingScript:  instrumenterSrc + beautifySrc +
       '(' + preprocessor + ')',
   });
 }

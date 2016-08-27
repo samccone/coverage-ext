@@ -39,7 +39,7 @@ function onCopyClick() {
 function preprocessor(src, url, fName) {
   function instrumentSrc(src) {
     // Make sure that we store the original src code in a map.
-    var saniUrl = url.replace(/\/|\:|\.|\?/g, '-');
+    var saniUrl = url.replace(/\/|\:|\.|\?/g, '-') + '---' + Math.random();
     var prefix = '(window.__originals = window.__originals || {});' +
       'window.__originals["' + saniUrl + '"] = "' + btoa(unescape(encodeURIComponent(src))) + '";';
 

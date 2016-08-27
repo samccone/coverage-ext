@@ -1,0 +1,6 @@
+{
+  "name": "coverage-reporter",
+  "dependencies": {
+    "istanbul": "^0.4.5"
+  }
+}

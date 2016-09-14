@@ -38,11 +38,8 @@ Object.keys(originals).forEach(key => {
 var fileWriter = new FileWriter(false);
 
 fileWriter.writeFile = function writeFile(file, callback) {
-  if (file.length > 255) {
-    var excess = file.length - 255;
-    var baseName = path.basename(file, '.html')
-    file = file.replace(baseName, baseName.substr(0, (baseName.length - excess) - 1));
-  }
+  var ext = path.extname(file);
+  file = file.slice(0, 255 - ext.length) + ext;
   FileWriter.prototype.writeFile.call(fileWriter, file, callback);
 };
 

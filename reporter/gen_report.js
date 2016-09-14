@@ -12,6 +12,9 @@ var HtmlReporter = require('./' + path.join(
 var Collector = require('./' + path.join(
   ISTANBUL_PATH, '/lib/collector'));
 
+var FileWriter = require('./' + path.join(
+  ISTANBUL_PATH, '/lib/util/file-writer'));
+
 var dump = JSON.parse(
   fs.readFileSync(
     path.resolve(process.cwd(), process.argv[2]), 'utf8'));
@@ -32,11 +35,19 @@ Object.keys(originals).forEach(key => {
       escape(atob(originals[key]))));
 });
 
+var fileWriter = new FileWriter(false);
+
+fileWriter.writeFile = function writeFile(file, callback) {
+  var ext = path.extname(file);
+  file = file.slice(0, 255 - ext.length) + ext;
+  FileWriter.prototype.writeFile.call(fileWriter, file, callback);
+};
 
 var reporter = new HtmlReporter({
   verbose: true,
   sourceStore,
   collector,
+  writer: fileWriter
 });
 
 reporter.writeReport(collector, true);

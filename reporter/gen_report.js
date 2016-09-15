@@ -18,7 +18,6 @@ var dump = JSON.parse(
 
 var truncateFileNames = function (data) {
     return Object.keys(data).reduce(function (n, path) {
-        console.log('Path', path);
         n[path.slice(0, 200)] = data[path];
         n[path.slice(0, 200)].path = path.slice(0, 200)
 

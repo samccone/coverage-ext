@@ -16,11 +16,21 @@ var dump = JSON.parse(
   fs.readFileSync(
     path.resolve(process.cwd(), process.argv[2]), 'utf8'));
 
-var originals = JSON.parse(dump.originals)
+var truncateFileNames = function (data) {
+    return Object.keys(data).reduce(function (n, path) {
+        n[path.slice(0, 200)] = data[path];
+        n[path.slice(0, 200)].path = path.slice(0, 200)
+
+        return n;
+    }, {});
+}
+
+var originals = truncateFileNames(JSON.parse(dump.originals));
 var sourceStore = new MemoryStore();
 var collector = new Collector();
+var data = truncateFileNames(JSON.parse(dump.coverage));
 
-collector.add(JSON.parse(dump.coverage));
+collector.add(data);
 
 function atob(str) {
   return new Buffer(str, 'base64').toString('binary');

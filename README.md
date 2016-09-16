@@ -5,7 +5,7 @@ This combo gives you the power to view what JS gets evaluated on any website.
 
 ## How to use
 
-First we have to download an old version of chrome from [here](https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac/314206/).
+First we have to download an **old version of chrome** from [here](https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac/314206/).
 
 The reason why we have to use an old version is because we are utilizing a cool API chrome used to have to preprocess any JS file before it gets evaluated by v8. This feature was reverted [here](https://codereview.chromium.org/761143003).
 

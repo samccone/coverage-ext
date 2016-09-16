@@ -36,7 +36,27 @@ function onCopyClick() {
   });
 }
 
+
+/*
+    If specified, this script evaluates into a function
+    that accepts three string arguments: the source to
+    preprocess, the URL of the source, and a function
+    name if the source is an DOM event handler. The
+    preprocessorerScript function should return a string
+    to be compiled by Chrome in place of the input source.
+    In the case that the source is a DOM event handler,
+    the returned source must compile to a single JS function.
+*/
+
 function processScripts() {
+
+    var oldEval = window.eval;
+    window.eval = function() {
+//        console.log( 'eval', arguments );
+        console.log( 'INS EVAL' );
+        eval( window.beautify( window.instrument( arguments[ 0 ] ) ) );
+        return oldEval.apply( window, arguments );
+    }
 
     function instrumentURL( url ) {
 
@@ -59,10 +79,21 @@ function processScripts() {
     [].forEach.call( document.querySelectorAll( 'script' ), s => {
         let src = s.getAttribute( 'src' );
         if( src ) {
-            instrumentURL( src ).then( res => { eval( window.beautify( res ) ) } ).catch( e => console.log( e, src ) );
+            console.log( 'INS URL', src );
+            instrumentURL( src ).then( res => { oldEval( res ) ) } ).catch( e => console.log( e, src ) );
         } else {
-            eval( window.beautify( window.instrument( s.textContent ) ) );
+           console.log( 'INS SCRIPT' );
+           oldEval( window.beautify( window.instrument( s.textContent ) ) );
         }
+    } );
+
+    [].forEach.call( document.querySelectorAll('*'), e => {
+        [].forEach.call( e.attributes, a => {
+            if( a.nodeName.match( /^on/gmi ) ){
+                console.log( 'INS INLINE' );
+                oldEval( window.beautify( window.instrument( a.nodeValue ) ) );
+            }
+        } )
     } );
 
 }

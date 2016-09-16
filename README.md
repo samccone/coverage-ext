@@ -3,6 +3,8 @@
 This is an extension to an old version of chrome + a custom istanbul reporter.
 This combo gives you the power to view what JS gets evaluated on any website.
 
+![image](https://cloud.githubusercontent.com/assets/883126/18592140/6535c56a-7bea-11e6-88e5-dff9d8f0789c.png)
+
 ## How to use
 
 First we have to download an **old version of chrome** from [here](https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?prefix=Mac/314206/).

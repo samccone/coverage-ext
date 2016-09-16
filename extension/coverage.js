@@ -36,35 +36,51 @@ function onCopyClick() {
   });
 }
 
-function preprocessor(src, url, fName) {
-  function instrumentSrc(src) {
-    // Make sure that we store the original src code in a map.
-    var saniUrl = (url.replace(/\/|\:|\.|\?/g, '-') + '---' + (Math.random().toFixed(4)));
-    var prefix = '(window.__originals = window.__originals || {});' +
-      'window.__originals["' + saniUrl + '"] = "' + btoa(unescape(encodeURIComponent(src))) + '";';
+function processScripts() {
 
-    return prefix + window.instrument(src, saniUrl);
-  }
+    function instrumentURL( url ) {
 
-  if (url) {
-    return instrumentSrc(window.beautify(src));
-  } else {
-    return src;
-  }
+        return new Promise( ( resolve, reject ) => {
+
+            fetch( url, { mode: 'no-cors' } ).then( res => res.text() ).then( src => {
+
+                var saniUrl = (url.replace(/\/|\:|\.|\?/g, '-') + '---' + (Math.random().toFixed(4)));
+                var prefix = '(window.__originals = window.__originals || {});' +
+                'window.__originals["' + saniUrl + '"] = "' + btoa(unescape(encodeURIComponent(src))) + '";';
+
+                resolve( prefix + window.instrument(src, saniUrl) );
+
+            } ).catch( e => reject( e ) );
+
+        } );
+
+    }
+
+    [].forEach.call( document.querySelectorAll( 'script' ), s => {
+        let src = s.getAttribute( 'src' );
+        if( src ) {
+            instrumentURL( src ).then( res => { eval( window.beautify( res ) ) } ).catch( e => console.log( e, src ) );
+        } else {
+            eval( window.beautify( window.instrument( s.textContent ) ) );
+        }
+    } );
+
 }
 
-var request = new XMLHttpRequest();
-request.open('GET', 'instrumenter.js', false);
-request.send(null);
-var instrumenterSrc = request.responseText
+Promise.all( [
+    fetch( chrome.extension.getURL( 'instrumenter.js' ) ).then( res => res.text() ).then( res => instrumenterSrc = res ),
+    fetch( chrome.extension.getURL( 'beautify.js' ) ).then( res => res.text() ).then( res => beautifySrc = res )
+] ).then( function() {
 
-request.open('GET', 'beautify.js', false);
-request.send(null);
-var beautifySrc = request.responseText
+    //console.log( 'ready' );
+
+} );
+
+var intro = '';//'console.log("here starts the coverage injected script");';
 
 function onGatherClick() {
-  chrome.devtools.inspectedWindow.reload({
-    preprocessingScript:  instrumenterSrc + beautifySrc +
-      '(' + preprocessor + ')',
-  });
+    chrome.devtools.inspectedWindow.reload({
+        injectedScript: intro + instrumenterSrc + beautifySrc +
+        processScripts + ';' + 'window.addEventListener("load",processScripts)'
+    });
 }
